@@ -222,11 +222,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				RefreshWindow();
 			}
 			break;
-		case WM_CREATE:/*
+		case WM_CREATE:
+			InitCommonControls();
 			hCommandBar = CommandBar_Create(wndClass.hInstance, m_hWnd, 1);
+			if (hCommandBar == 0) {
+				//MessageBox(NULL, TEXT("Cannot create commandbar!"), TEXT("Reversi"), MB_OK | MB_ICONERROR);
+			}
 			CommandBar_InsertMenubarEx(hCommandBar, wndClass.hInstance, _T("WNDMENU"), 0);
 			CommandBar_AddAdornments(hCommandBar, 0, 102);
-			m_hMenu = CommandBar_GetMenu(hCommandBar, 0);*/
+			m_hMenu = CommandBar_GetMenu(hCommandBar, 0);
 			if(DisplayType == 0){
 				ico1_hBitmap = LOAD_BITMAP(_T("white_l")) ,ico2_hBitmap = LOAD_BITMAP(_T("black_l"));
 			}else{
@@ -255,7 +259,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			font.lfCharSet = DEFAULT_CHARSET;
 			font.lfOutPrecision = OUT_DEFAULT_PRECIS;
 			font.lfClipPrecision = CLIP_CHARACTER_PRECIS;
-			font.lfQuality = DEFAULT_QUALITY;
+			font.lfQuality = 5;
 			font.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
 			font.lfFaceName[0] = _T('\0');
 
@@ -302,8 +306,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
-	if(GetDeviceCaps(0, HORZRES) <= 480){
-		if(GetDeviceCaps(0, VERTRES) <= 360){
+	if(GetDeviceCaps(0, HORZRES) < 800){
+		if(GetDeviceCaps(0, VERTRES) < 480){
 			DisplayType = 0;
 			board_x = 0;
 			board_y = 0;
