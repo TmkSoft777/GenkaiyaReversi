@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include "Board.h"
+
 static HBITMAP ico1_hBitmap, ico2_hBitmap;
 HDC ico1_hBuffer, ico2_hBuffer, wDC, board_tDC, text_tDC;
 HWND m_hWnd, hCommandBar;
