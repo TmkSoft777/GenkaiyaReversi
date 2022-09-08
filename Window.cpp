@@ -207,7 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case 301:
 					MessageBox (
 						m_hWnd ,
-						TEXT("Genkaiya Reversi\nVersion : Beta 2.9\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
+						TEXT("Genkaiya Reversi\nVersion 3.0 BETA2\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
 						TEXT("About") ,
 						MB_OK | MB_ICONASTERISK
 					);
@@ -354,7 +354,7 @@ int main()
 	);
 	m_hWnd = CreateWindow (
 		wndClass.lpszClassName ,
-		TEXT("Genkaiya Reversi Beta 2.9") ,
+		TEXT("Genkaiya Reversi 3.0 BETA2") ,
 		WS_OVERLAPPEDWINDOW & ~WS_MINIMIZEBOX ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
