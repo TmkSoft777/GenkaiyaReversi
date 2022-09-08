@@ -39,57 +39,55 @@ void Board::Reverse(int i, int j) {
 void Board::Test(int i,int j,int m,int n){
 	int p,q,r,s,count=0;bool flag=false;
 	if(m_board[i][j]==BLACK){
-		for(p=i+m,q=j+n;p>=0&&p<8&&q>=0&&q<8;p+=m,q+=n){
-			if(m_board[p][q]==EMPTY) return;
+		for(p=i+m,q=j+n;0<=p&&p<8&&0<=q&&q<8;p+=m,q+=n){
+			if(m_board[p][q]==EMPTY || m_board[p][q]==AVAILABLE) return;
 			if(m_board[p][q]==BLACK){
-			flag=true;
 			break;
 			}
 			count++;
 		}
-		if(flag){
+			if(0<=p&&p<8&&0<=q&&q<8){
 			for(r=i+m,s=j+n;r!=p||s!=q;r+=m,s+=n){
 				if (m_board[r][s] == WHITE) {
 					*&m_board[r][s] = BLACK;
 				}
 			}
-		}
+			}
+		
 	}
 	else {
 		for(p=i+m,q=j+n;p>=0&&p<8&&q>=0&&q<8;p+=m,q+=n){
-			if(m_board[p][q]==EMPTY) return;
+			if(m_board[p][q]==EMPTY || m_board[p][q]==AVAILABLE) return;
 			if(m_board[p][q]==WHITE){
-			flag=true;
 			break;
 			}
 			count++;
 		}
-		if(flag){
+			if(0<=p&&p<8&&0<=q&&q<8){
 			for(r=i+m,s=j+n;r!=p||s!=q;r+=m,s+=n){
 				if (m_board[r][s] == BLACK) {
 					*&m_board[r][s] = WHITE;
 				}
 			}
-		}
+			}
 	}
 }
 
 
 void Board::modelTest(int i,int j,int m,int n){
-	int p,q,r,s,count=0;bool flag=false;
+	int p,q,r,s,count=0;
 	for(p=i+m,q=j+n;p>=0&&p<8&&q>=0&&q<8;p+=m,q+=n){
 		if(modelmap[p][q]==0) return;
 		else if(modelmap[p][q]==-1){
-			flag=true;
 			break;
 			}
 			count++;
 	}
-	if(flag){
+			if(0<=p&&p<8&&0<=q&&q<8){
 		for(r=i+m,s=j+n;r!=p||s!=q;r+=m,s+=n){
 			*&modelmap[r][s]=-1;
 		}
-	}
+			}
 }
 
 

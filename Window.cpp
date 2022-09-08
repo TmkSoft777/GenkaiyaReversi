@@ -102,16 +102,16 @@ void RefreshWindow()
 	RefreshBuffer();
 	DrawBuffer(GetDC(m_hWnd));
 
-	if (m_board->isGameOver && m_board->isFull)
+	if ((m_board->isGameOver && m_board->isFull) || blackCount == 0 || whiteCount == 0)
 	{
 		const auto SHOW_RESULT = [&](const TCHAR *msg) {
 			MessageBox(m_hWnd , msg , _T("Reversi") , MB_OK | MB_ICONASTERISK);
 			m_board->Set();
 			RefreshWindow();
 		};
-		if (whiteCount < blackCount || whiteCount == 0) { SHOW_RESULT(_T("You Win!")); }
+		if (whiteCount < blackCount) { SHOW_RESULT(_T("You Win!")); }
 		else if (whiteCount == blackCount) { SHOW_RESULT(_T("Draw!")); }
-		else if (whiteCount > blackCount || blackCount == 0) { SHOW_RESULT(_T("You Lose...\nGenkaiya...")); }
+		else if (whiteCount > blackCount) { SHOW_RESULT(_T("You Lose...\nGenkaiya...")); }
 	}
 	else if (m_board->isnoAvailable)
 	{
@@ -224,7 +224,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_CREATE:
 			#ifdef _WIN32_WCE
 			InitCommonControls();
-			hCommandBar = CommandBar_Create(wndClass.hInstance, m_hWnd, 1);
+			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance, m_hWnd, 1);
 			if (hCommandBar == 0) {
 				//MessageBox(NULL, TEXT("Cannot create commandbar!"), TEXT("Reversi"), MB_OK | MB_ICONERROR);
 			}
