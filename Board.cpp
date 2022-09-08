@@ -1,7 +1,6 @@
 #include"Board.h"
 #include <windows.h>
-#include <vector>
-using namespace std;
+
 int modelmap[8][8]={};
 
 BlockStatus (*Board::getBoard())[8] { return m_board; }
