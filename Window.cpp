@@ -13,7 +13,7 @@ HBRUSH m_grayBrush , m_whiteBrush , m_blackBrush , m_greenBrush , m_lightBlueBru
 Board* m_board;
 HBITMAP text_bufferBMP;
 int board_x , board_y , board_w , board_s , text_x , text_y , blackCount , whiteCount , DisplayType;
-//DisplayType: 0:480x360 1:480x800 2:800x480
+//DisplayType: 0:480x320 1:480x800 2:800x480
 //board: x,y:coordinate w:weight s:each space
 auto board = m_board->getBoard();
 
@@ -66,7 +66,7 @@ void RefreshBuffer()
 		for (int i = 0; i < 8; ++i)
 		{
 			for (int j = 0; j < 8; ++j)
-			{ if (board[i][j] == BlockStatus::AVAILABLE) { Ellipse(board_tDC, j * 35 + 10, i * 35 + 10, j * 35 + 25, i * 35 + 25); } }
+			{ if (board[i][j] == BlockStatus::AVAILABLE) { Ellipse(board_tDC, j * 30 + 9, i * 30 + 9, j * 30 + 21, i * 30 + 21); } }
 		}
 	}
 	else
@@ -78,8 +78,8 @@ void RefreshBuffer()
 		}
 	}
 
-	for (int i = 0; i < 9; ++i) { MoveToEx(board_tDC, i * board_s , 0 , NULL) , LineTo(board_tDC, i * board_s, board_w); }
-	for (int i = 0; i < 9; ++i) { MoveToEx(board_tDC, 0, i * board_s, NULL) , LineTo(board_tDC, board_w, i * board_s); }
+	for (int i = 0; i < 9; ++i) { MoveToEx(board_tDC, i * board_s , 0 , NULL) , LineTo(board_tDC, i * board_s, board_w + 1); }
+	for (int i = 0; i < 9; ++i) { MoveToEx(board_tDC, 0, i * board_s, NULL) , LineTo(board_tDC, board_w + 1, i * board_s); }
 
 	SelectObject(text_tDC, m_hFont);
 	SetBkMode(text_tDC, TRANSPARENT);
@@ -102,7 +102,7 @@ void RefreshWindow()
 	RefreshBuffer();
 	DrawBuffer(GetDC(m_hWnd));
 
-	if ((m_board->isGameOver && m_board->isFull) || blackCount == 0 || whiteCount == 0)
+	if (m_board->isGameOver || blackCount == 0 || whiteCount == 0)
 	{
 		const auto SHOW_RESULT = [&](const TCHAR *msg) {
 			MessageBox(m_hWnd , msg , _T("Reversi") , MB_OK | MB_ICONASTERISK);
@@ -112,6 +112,7 @@ void RefreshWindow()
 		if (whiteCount < blackCount) { SHOW_RESULT(_T("You Win!")); }
 		else if (whiteCount == blackCount) { SHOW_RESULT(_T("Draw!")); }
 		else if (whiteCount > blackCount) { SHOW_RESULT(_T("You Lose...\nGenkaiya...")); }
+		return;
 	}
 	else if (m_board->isnoAvailable)
 	{
@@ -119,6 +120,7 @@ void RefreshWindow()
 		m_board->robot();
 		m_board->setAvailable();
 		RefreshWindow();
+		return;
 	}
 }
 
@@ -207,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case 301:
 					MessageBox (
 						m_hWnd ,
-						TEXT("Genkaiya Reversi\nVersion 3.0 BETA2\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
+						TEXT("Genkaiya Reversi\nVersion 3.0 BETA3\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
 						TEXT("About") ,
 						MB_OK | MB_ICONASTERISK
 					);
@@ -305,7 +307,7 @@ int main()
 		if(GetDeviceCaps(0 , VERTRES) < 480)
 		{
 			DisplayType = 0;
-			board_s = 35;
+			board_s = 30;
 			text_x = 300;
 			text_y = 30;
 		}
@@ -334,7 +336,7 @@ int main()
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
 	wndClass.hInstance = GetModuleHandle(0);
-	wndClass.hIcon = (HICON)LoadImage(0 , _T("reversi.ico") , IMAGE_ICON , 0 , 0 , LR_LOADFROMFILE);
+	wndClass.hIcon = (HICON)LoadIcon(wndClass.hInstance, TEXT("REVERSI"));
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 128, 0)); // ”wŒi‚Í—Î
 	wndClass.lpszMenuName = NULL;
@@ -354,7 +356,7 @@ int main()
 	);
 	m_hWnd = CreateWindow (
 		wndClass.lpszClassName ,
-		TEXT("Genkaiya Reversi 3.0 BETA2") ,
+		TEXT("Genkaiya Reversi 3.0 BETA3") ,
 		WS_OVERLAPPEDWINDOW & ~WS_MINIMIZEBOX ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
