@@ -66,7 +66,7 @@ void RefreshBuffer()
 		for (int i = 0; i < 8; ++i)
 		{
 			for (int j = 0; j < 8; ++j)
-			{ if (board[i][j] == BlockStatus::AVAILABLE) { Ellipse(board_tDC, j * 30 + 9, i * 30 + 9, j * 30 + 21, i * 30 + 21); } }
+			{ if (board[i][j] == BlockStatus::AVAILABLE) { Ellipse(board_tDC, j * 30 + 8, i * 30 + 8, j * 30 + 23, i * 30 + 23); } }
 		}
 	}
 	else
