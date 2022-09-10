@@ -304,9 +304,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if ((pos.x >= 25 && pos.x <= 425) && (pos.y >= 25 && pos.y <= 425))
 			{
 				// in rect
-				pos.x -= board_s / 2;
+				pos.x -= board_x;
 				pos.x /= board_s;
-				pos.y -= board_s / 2;
+				pos.y -= board_y;
 				pos.y /= board_s;
 				if (m_board->getBoard()[pos.y][pos.x] == BlockStatus::AVAILABLE) { SetCursor(hand); }
 			}
