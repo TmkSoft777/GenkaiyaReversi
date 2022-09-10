@@ -297,6 +297,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DrawBuffer(wDC);
 			EndPaint(m_hWnd, &ps);
 			break;
+		#ifndef _WIN32_WCE
 		case WM_MOUSEMOVE:
 		{
 			pos = MAKEPOINTS(lParam);
@@ -312,6 +313,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else { SetCursor(normal); }
 			break;
 		}
+		#endif
 		default: return DefWindowProc(hWnd , message , wParam , lParam);
 	}
 	return 0;
