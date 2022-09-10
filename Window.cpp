@@ -155,6 +155,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	#ifdef _WIN32_WCE
 	HWND hCommandBar;
+	#else
+	static HCURSOR hand = LoadCursor(NULL, IDC_HAND) , normal = LoadCursor(NULL, IDC_ARROW);
 	#endif
 
 	switch (message)
@@ -295,6 +297,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DrawBuffer(wDC);
 			EndPaint(m_hWnd, &ps);
 			break;
+		case WM_MOUSEMOVE:
+		{
+			pos = MAKEPOINTS(lParam);
+			if ((pos.x >= 25 && pos.x <= 425) && (pos.y >= 25 && pos.y <= 425))
+			{
+				// in rect
+				pos.x -= board_s / 2;
+				pos.x /= board_s;
+				pos.y -= board_s / 2;
+				pos.y /= board_s;
+				if (m_board->getBoard()[pos.y][pos.x] == BlockStatus::AVAILABLE) { SetCursor(hand); }
+			}
+			else { SetCursor(normal); }
+			break;
+		}
 		default: return DefWindowProc(hWnd , message , wParam , lParam);
 	}
 	return 0;
