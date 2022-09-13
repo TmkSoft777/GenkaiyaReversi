@@ -2,6 +2,7 @@
 #include <tchar.h>
 #include <windows.h>
 #include <commctrl.h>
+#include "menu.hpp"
 #include "Board.h"
 
 static HBITMAP ico1_hBitmap, ico2_hBitmap;
@@ -155,6 +156,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	#ifdef _WIN32_WCE
 	HWND hCommandBar;
+	RECT rect;
+	#else
+	static HCURSOR hand = LoadCursor(NULL, IDC_HAND) , normal = LoadCursor(NULL, IDC_ARROW);
 	#endif
 
 	switch (message)
@@ -178,35 +182,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
-				case 101:
+				case FILE_NEW_GAME :
 					m_board->Set();
 					RefreshWindow();
 					break;
-				case 102:
+				case FILE_EXIT:
 					PostMessage(m_hWnd, WM_CLOSE, 0, 0);
 					break;
-				case 201:
+				case ANIMATION_FAST:
 					AniTime = 100;
 					CheckMenuItem(m_hMenu, 201, MF_BYCOMMAND | MFS_CHECKED);
 					CheckMenuItem(m_hMenu, 202, MF_BYCOMMAND | MFS_UNCHECKED);
 					CheckMenuItem(m_hMenu, 203, MF_BYCOMMAND | MFS_UNCHECKED);
 					RefreshWindow();
 					break;
-				case 202:
+				case ANIMATION_NORMAL:
 					AniTime = 200;
 					CheckMenuItem(m_hMenu, 201, MF_BYCOMMAND | MFS_UNCHECKED);
 					CheckMenuItem(m_hMenu, 202, MF_BYCOMMAND | MFS_CHECKED);
 					CheckMenuItem(m_hMenu, 203, MF_BYCOMMAND | MFS_UNCHECKED);
 					RefreshWindow();
 					break;
-				case 203:
+				case ANIMATION_SLOW:
 					AniTime = 400;
 					CheckMenuItem(m_hMenu, 201, MF_BYCOMMAND | MFS_UNCHECKED);
 					CheckMenuItem(m_hMenu, 202, MF_BYCOMMAND | MFS_UNCHECKED);
 					CheckMenuItem(m_hMenu, 203, MF_BYCOMMAND | MFS_CHECKED);
 					RefreshWindow();
 					break;
-				case 301:
+				case HELP_ABOUT:
 					MessageBox (
 						m_hWnd ,
 						TEXT("Genkaiya Reversi\nVersion 3.0 BETA3\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
@@ -226,13 +230,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_CREATE:
 			#ifdef _WIN32_WCE
 			InitCommonControls();
-			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance, m_hWnd, 1);
-			if (hCommandBar == 0) {
-				//MessageBox(NULL, TEXT("Cannot create commandbar!"), TEXT("Reversi"), MB_OK | MB_ICONERROR);
+			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance, hWnd, 8);
+			if (hCommandBar == NULL)
+			{
+				MessageBox(hWnd , _T("cannot create commandbar."), _T("Reversi"), MB_OK | MB_ICONERROR);
 			}
-			CommandBar_InsertMenubarEx(hCommandBar , ((LPCREATESTRUCT)(lParam))->hInstance , _T("WNDMENU") , 0);
-			CommandBar_AddAdornments(hCommandBar , 0 , 102);
+			CommandBar_InsertMenubarEx(hCommandBar , ((LPCREATESTRUCT)(lParam))->hInstance , _T("WNDMENU") , 8);
+			CommandBar_AddAdornments(hCommandBar , 0 , 0);
 			m_hMenu = CommandBar_GetMenu(hCommandBar , 0);
+			GetClientRect(hCommandBar , &rect);
+			rect.top += CommandBar_Height(hCommandBar);
+			rect.bottom += CommandBar_Height(hCommandBar);
+			MoveWindow(hCommandBar , rect.top , rect.left , rect.bottom , rect.right , TRUE);
 			#endif
 			if(DisplayType == 0) { ico1_hBitmap = LOAD_BITMAP(_T("white_l")) , ico2_hBitmap = LOAD_BITMAP(_T("black_l")); }
 			else { ico1_hBitmap = LOAD_BITMAP(_T("white")) ,ico2_hBitmap = LOAD_BITMAP(_T("black")); }
@@ -295,6 +304,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DrawBuffer(wDC);
 			EndPaint(m_hWnd, &ps);
 			break;
+		#ifndef _WIN32_WCE
+		case WM_MOUSEMOVE:
+		{
+			pos = MAKEPOINTS(lParam);
+			if ((pos.x >= 25 && pos.x <= 425) && (pos.y >= 25 && pos.y <= 425))
+			{
+				// in rect
+				pos.x -= board_x;
+				pos.x /= board_s;
+				pos.y -= board_y;
+				pos.y /= board_s;
+				if (m_board->getBoard()[pos.y][pos.x] == BlockStatus::AVAILABLE) { SetCursor(hand); }
+			}
+			else { SetCursor(normal); }
+			break;
+		}
+		#endif
 		default: return DefWindowProc(hWnd , message , wParam , lParam);
 	}
 	return 0;
@@ -302,9 +328,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
-	if(GetDeviceCaps(0 , HORZRES) < 800)
+	HDC hDC = CreateDC(_T("DISPLAY") , NULL , NULL , NULL);
+	const auto deviceCaps = GetDeviceCaps(hDC , HORZRES);
+	DeleteDC(hDC);
+	if(deviceCaps < 800)
 	{
-		if(GetDeviceCaps(0 , VERTRES) < 480)
+		if(deviceCaps < 480)
 		{
 			DisplayType = 0;
 			board_s = 30;
@@ -329,7 +358,7 @@ int main()
 	board_x = board_y = 0;
 	board_w = board_s * 8;
 
-	WNDCLASS wndClass;
+	WNDCLASS wndClass = {0};
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
 
 	wndClass.lpfnWndProc = WndProc;
@@ -339,11 +368,13 @@ int main()
 	wndClass.hIcon = (HICON)LoadIcon(wndClass.hInstance, TEXT("REVERSI"));
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 128, 0)); // ”wŒi‚Í—Î
-	wndClass.lpszMenuName = NULL;
+	#ifndef _WIN32_WCE
+	wndClass.lpszMenuName = _T("WNDMENU");
+	#endif
 	wndClass.lpszClassName = _T("Reversi");
 	if(!RegisterClass(&wndClass)) { return -1; }
 
-	RECT clientRect;
+	/*RECT clientRect;
 	clientRect.left = 0;
 	clientRect.top = 0;
 	clientRect.right = 700;
@@ -353,11 +384,18 @@ int main()
 		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
 		TRUE ,
 		0
-	);
+	);*/
+	constexpr DWORD style = 
+	#ifdef _WIN32_WCE
+	WS_VISIBLE
+	#else
+	WS_OVERLAPPEDWINDOW | WS_VISIBLE
+	#endif
+	;
 	m_hWnd = CreateWindow (
 		wndClass.lpszClassName ,
 		TEXT("Genkaiya Reversi 3.0 BETA3") ,
-		WS_OVERLAPPEDWINDOW & ~WS_MINIMIZEBOX ,
+		style ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
 		CW_USEDEFAULT , CW_USEDEFAULT ,
 		NULL ,
@@ -367,8 +405,8 @@ int main()
 	);
 	if (m_hWnd == NULL) { return -1; }
 
-	ShowWindow(m_hWnd , SW_SHOW);
-	UpdateWindow(m_hWnd);
+	//ShowWindow(m_hWnd , SW_SHOW);
+	//UpdateWindow(m_hWnd);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
