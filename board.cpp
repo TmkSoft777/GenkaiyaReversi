@@ -1,4 +1,4 @@
-#include"Board.hpp"
+#include "board.hpp"
 #include <windows.h>
 
 int modelmap[8][8];
