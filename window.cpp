@@ -234,7 +234,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_CREATE:
 			#ifdef _WIN32_WCE
 			InitCommonControls();
-			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance, hWnd, 8);
+			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance , hWnd , 1);
 			if (!hCommandBar)
 			{
 				if(MessageBox(hWnd , _T("Couldn't Create Commandbar.\nDo You Exit Genkaiya Reversi?") , _T("Error") , MB_YESNO | MB_ICONERROR) == IDYES)
