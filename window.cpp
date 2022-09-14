@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include "menu.hpp"
-#include "Board.h"
+#include "board.hpp"
 
 static HBITMAP ico1_hBitmap, ico2_hBitmap;
 HDC ico1_hBuffer , ico2_hBuffer , wDC , board_tDC , text_tDC;
@@ -135,8 +135,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	const auto LOAD_BITMAP = [&](const TCHAR *name)
 	{
 		TCHAR path[MAX_PATH];
-		GetModuleFileName(NULL , path , MAX_PATH); // Às‰Â”\ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ğæ“¾
-		*(_tcsrchr(path , _T('\\')) + 1) = _T('\0'); // Às‰Â”\ƒtƒ@ƒCƒ‹‚ÌƒfƒBƒŒƒNƒgƒŠ‚Ì‚İ‚É‚·‚é
+		GetModuleFileName(NULL , path , MAX_PATH); // ï¿½ï¿½ï¿½sï¿½Â”\ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìƒpï¿½Xï¿½ï¿½ï¿½æ“¾
+		*(_tcsrchr(path , _T('\\')) + 1) = _T('\0'); // ï¿½ï¿½ï¿½sï¿½Â”\ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìƒfï¿½Bï¿½ï¿½ï¿½Nï¿½gï¿½ï¿½ï¿½Ì‚İ‚É‚ï¿½ï¿½ï¿½
 		lstrcat(path , name);
 		lstrcat(path , _T(".bmp"));
 
@@ -367,7 +367,7 @@ int main()
 	wndClass.hInstance = GetModuleHandle(0);
 	wndClass.hIcon = (HICON)LoadIcon(wndClass.hInstance, TEXT("REVERSI"));
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 128, 0)); // ”wŒi‚Í—Î
+	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 128, 0)); // ï¿½wï¿½iï¿½Í—ï¿½
 	#ifndef _WIN32_WCE
 	wndClass.lpszMenuName = _T("WNDMENU");
 	#endif
