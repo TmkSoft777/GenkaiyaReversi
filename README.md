@@ -3,6 +3,8 @@ GenkaiyaReversi<br>
 限界やちゃんのリバーシです。<br>
 Windows CE, Windows NT どちらにもコンパイルできます。<br>
 
+<h2>Version [BETA]</h2>
+
 <h2>Version [BETA] 3.0.2 </h2>
 どちらも置けなくなるとメッセージが止まらないバグを修正<br>
 旧世代の解像度を間違えて480x360にしてた(正しくは480x320)<br>
