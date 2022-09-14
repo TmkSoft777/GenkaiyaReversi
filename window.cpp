@@ -12,7 +12,6 @@ HMENU m_hMenu;
 HFONT m_hFont;
 HBRUSH m_grayBrush , m_whiteBrush , m_blackBrush , m_greenBrush , m_lightBlueBrush;
 Board* m_board;
-HBITMAP text_bufferBMP;
 int board_x , board_y , board_w , board_s , text_x , text_y , blackCount , whiteCount , DisplayType;
 //DisplayType: 0:480x320 1:480x800 2:800x480
 //board: x,y:coordinate w:weight s:each space
@@ -130,7 +129,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	POINTS pos;
 	static LOGFONT font;
-	static HBITMAP board_bufferBMP;
+	static HBITMAP board_bufferBMP , text_bufferBMP;
 	static unsigned __int16 AniTime = 200;
 	const auto LOAD_BITMAP = [&](const TCHAR *name)
 	{
