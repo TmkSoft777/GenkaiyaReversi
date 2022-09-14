@@ -1,12 +1,9 @@
-#include <cstdint>
-#include <tchar.h>
-#include <windows.h>
-#include <commctrl.h>
 #include "menu.hpp"
-#include "board.hpp"
+#include "header.hpp"
+#include <commctrl.h>
 
 static HBITMAP ico1_hBitmap, ico2_hBitmap;
-HDC ico1_hBuffer , ico2_hBuffer , wDC , board_tDC , text_tDC;
+HDC ico1_hBuffer , ico2_hBuffer , board_tDC , text_tDC;
 HWND m_hWnd;
 HMENU m_hMenu;
 HFONT m_hFont;
@@ -15,7 +12,9 @@ Board* m_board;
 int board_x , board_y , board_w , board_s , text_x , text_y , blackCount , whiteCount , DisplayType;
 //DisplayType: 0:480x320 1:480x800 2:800x480
 //board: x,y:coordinate w:weight s:each space
-auto board = m_board->getBoard();
+
+void MsgBox(const TCHAR *str , DWORD style)
+{ MessageBox(m_hWnd , str , _T("GenkaiyaReversi") , style); }
 
 inline void drawText(HDC hDC , const TCHAR *str , RECT rc , UINT format) { DrawText(hDC , str , lstrlen(str) , &rc , format); }
 void drawText(HDC hdc , int i , RECT rc , UINT format)
@@ -33,7 +32,7 @@ void RefreshBuffer()
 	FillRect(text_tDC, &text_rc, m_grayBrush);
 
 	// Start rendering
-	board = m_board->getBoard();
+	auto board = m_board->getBoard();
 	blackCount = 0 , whiteCount = 0;
 	ico1_hBuffer = CreateCompatibleDC(board_tDC);
 	SelectObject(ico1_hBuffer , ico1_hBitmap);
@@ -105,7 +104,7 @@ void RefreshWindow()
 	if (m_board->isGameOver || blackCount == 0 || whiteCount == 0)
 	{
 		const auto SHOW_RESULT = [&](const TCHAR *msg) {
-			MessageBox(m_hWnd , msg , _T("Reversi") , MB_OK | MB_ICONASTERISK);
+			MsgBox(msg , MB_OK | MB_ICONASTERISK);
 			m_board->Set();
 			RefreshWindow();
 		};
@@ -116,7 +115,7 @@ void RefreshWindow()
 	}
 	else if (m_board->isnoAvailable)
 	{
-		MessageBox(m_hWnd , TEXT("Since you have no more moves, AI goes again.") , TEXT("Reversi") , MB_OK | MB_ICONEXCLAMATION);
+		MsgBox(_T("Since you have no more moves, AI goes again.") , MB_OK | MB_ICONEXCLAMATION);
 		m_board->robot();
 		m_board->setAvailable();
 		RefreshWindow();
@@ -131,6 +130,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static LOGFONT font;
 	static HBITMAP board_bufferBMP , text_bufferBMP;
 	static unsigned __int16 AniTime = 200;
+	static HDC wDC;
 	const auto LOAD_BITMAP = [&](const TCHAR *name)
 	{
 		TCHAR path[MAX_PATH];
@@ -210,17 +210,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					RefreshWindow();
 					break;
 				case HELP_ABOUT:
-					MessageBox (
-						m_hWnd ,
-						TEXT("Genkaiya Reversi\nVersion 3.0 BETA3\n\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.") ,
-						TEXT("About") ,
+					MsgBox (
+						(
+							_T("About Genkaiya Reversi\n")
+							_T("\nCopylight (c) 2022 TMK, 777shuang. All Righits Reserved.")
+							_T("\nVersion : ") GENKAIYA_REVERSI_VERSION
+							_T("\nGithub : https://github/TmkSoft777/GenkaiyaReversi")
+							_T("\nLicense : GPL v3.0")
+							_T("\nBuild Date : ") _T(__DATE__)
+							_T("\nBuild Time : ") _T(__TIME__)
+						) ,
 						MB_OK | MB_ICONASTERISK
 					);
 					break;
 			}
 			break;
 		case WM_KEYDOWN:
-			if (wParam == VK_ESCAPE)
+			if (wParam == VK_ESCAPE && MessageBox(hWnd , _T("Are you sure?") , _T("Continue") , MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
 			{
 				m_board->Set();
 				RefreshWindow();
@@ -230,23 +236,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			#ifdef _WIN32_WCE
 			InitCommonControls();
 			hCommandBar = CommandBar_Create(((LPCREATESTRUCT)(lParam))->hInstance, hWnd, 8);
-			if (hCommandBar == NULL)
+			if (!hCommandBar)
 			{
-				MessageBox(hWnd , _T("cannot create commandbar."), _T("Reversi"), MB_OK | MB_ICONERROR);
+				if(MessageBox(hWnd , _T("Couldn't Create Commandbar.\nDo You Exit Genkaiya Reversi?") , _T("Error") , MB_YESNO | MB_ICONERROR) == IDYES)
+				{ DestroyWindow(hWnd); }
 			}
-			CommandBar_InsertMenubarEx(hCommandBar , ((LPCREATESTRUCT)(lParam))->hInstance , _T("WNDMENU") , 8);
-			CommandBar_AddAdornments(hCommandBar , 0 , 0);
-			m_hMenu = CommandBar_GetMenu(hCommandBar , 0);
-			GetClientRect(hCommandBar , &rect);
-			rect.top += CommandBar_Height(hCommandBar);
-			rect.bottom += CommandBar_Height(hCommandBar);
-			MoveWindow(hCommandBar , rect.top , rect.left , rect.bottom , rect.right , TRUE);
+			else
+			{
+				CommandBar_InsertMenubarEx(hCommandBar , ((LPCREATESTRUCT)(lParam))->hInstance , _T("WNDMENU") , 8);
+				CommandBar_AddAdornments(hCommandBar , 0 , 0);
+				m_hMenu = CommandBar_GetMenu(hCommandBar , 0);
+				GetClientRect(hCommandBar , &rect);
+				rect.top += CommandBar_Height(hCommandBar);
+				rect.bottom += CommandBar_Height(hCommandBar);
+				MoveWindow(hCommandBar , rect.top , rect.left , rect.bottom , rect.right , TRUE);
+			}
 			#endif
 			if(DisplayType == 0) { ico1_hBitmap = LOAD_BITMAP(_T("white_l")) , ico2_hBitmap = LOAD_BITMAP(_T("black_l")); }
 			else { ico1_hBitmap = LOAD_BITMAP(_T("white")) ,ico2_hBitmap = LOAD_BITMAP(_T("black")); }
 			if (!ico1_hBitmap || !ico2_hBitmap)
 			{
-				MessageBox(hWnd , _T("Cannot load image file(s)!") , _T("Reversi"), MB_OK | MB_ICONERROR);
+				MsgBox(_T("Cannot load image file(s)!") , MB_OK | MB_ICONERROR);
 				ReleaseDC(m_hWnd, wDC);
 				PostQuitMessage(0);
 			}
@@ -359,12 +369,11 @@ int main()
 
 	WNDCLASS wndClass = {0};
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
-
 	wndClass.lpfnWndProc = WndProc;
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
 	wndClass.hInstance = GetModuleHandle(0);
-	wndClass.hIcon = (HICON)LoadIcon(wndClass.hInstance, TEXT("REVERSI"));
+	wndClass.hIcon = (HICON)LoadIcon(wndClass.hInstance, _T("REVERSI"));
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 128, 0)); // �w�i�͗�
 	#ifndef _WIN32_WCE
@@ -373,39 +382,27 @@ int main()
 	wndClass.lpszClassName = _T("Reversi");
 	if(!RegisterClass(&wndClass)) { return -1; }
 
-	/*RECT clientRect;
-	clientRect.left = 0;
-	clientRect.top = 0;
-	clientRect.right = 700;
-	clientRect.bottom = 480;
-	AdjustWindowRectEx (
-		&clientRect,
-		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
-		TRUE ,
-		0
-	);*/
-	constexpr DWORD style = 
-	#ifdef _WIN32_WCE
-	WS_VISIBLE
-	#else
-	WS_OVERLAPPEDWINDOW | WS_VISIBLE
-	#endif
-	;
 	m_hWnd = CreateWindow (
 		wndClass.lpszClassName ,
-		TEXT("Genkaiya Reversi 3.0 BETA3") ,
-		style ,
-		CW_USEDEFAULT , CW_USEDEFAULT ,
-		CW_USEDEFAULT , CW_USEDEFAULT ,
+		_T("Genkaiya Reversi") ,
+		#ifdef _WIN32_WCE
+		WS_VISIBLE ,
+		#else
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE ,
+		#endif
+		CW_USEDEFAULT ,
+		CW_USEDEFAULT ,
+		CW_USEDEFAULT ,
+		CW_USEDEFAULT ,
 		NULL ,
-		m_hMenu ,
+		m_hMenu,
 		wndClass.hInstance ,
 		NULL
 	);
 	if (m_hWnd == NULL) { return -1; }
 
-	//ShowWindow(m_hWnd , SW_SHOW);
-	//UpdateWindow(m_hWnd);
+	ShowWindow(m_hWnd , SW_SHOW);
+	UpdateWindow(m_hWnd);
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
