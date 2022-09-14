@@ -217,8 +217,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							_T("\nVersion : ") GENKAIYA_REVERSI_VERSION
 							_T("\nGithub : https://github/TmkSoft777/GenkaiyaReversi")
 							_T("\nLicense : GPL v3.0")
-							_T("\nBuild Date : ") _T(__DATE__)
-							_T("\nBuild Time : ") _T(__TIME__)
+							_T("\nBuild Time : ") _T(__DATE__) _T(" , ") _T(__TIME__)
 						) ,
 						MB_OK | MB_ICONASTERISK
 					);
