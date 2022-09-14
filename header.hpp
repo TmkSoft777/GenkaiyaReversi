@@ -3,4 +3,4 @@
 #include <tchar.h>
 #include "board.hpp"
 
-#define GENKAIYA_REVERSI_VERSION _T("BETA 2.97")
+#define GENKAIYA_REVERSI_VERSION _T("BETA 2.98")
