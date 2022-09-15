@@ -17,10 +17,18 @@ void MsgBox(const TCHAR *str , DWORD style)
 { MessageBox(m_hWnd , str , _T("GenkaiyaReversi") , style); }
 
 inline void drawText(HDC hDC , const TCHAR *str , RECT rc , UINT format) { DrawText(hDC , str , lstrlen(str) , &rc , format); }
-void drawText(HDC hdc , int i , RECT rc , UINT format)
+
+void drawText(HDC hdc , unsigned int val , RECT rc , UINT format)
 {
 	TCHAR buf[10];
-	wsprintf(buf , _T("%d") , i);
+	unsigned __int8 n = 1 , i;
+	unsigned int v = val;
+	while (v >= 10) { v /= 10 , ++n; } // 桁数を求める
+	buf[n] = _T('\0');
+	do {
+		buf[--n] = val % 10 + _T('0');
+		val /= 10;
+	} while (i != 0);
 	drawText(hdc , buf , rc , format);
 }
 
