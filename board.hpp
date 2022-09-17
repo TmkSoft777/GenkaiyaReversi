@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __BOARD_HPP__
+#define __BOARD_HPP__
 
 enum BlockStatus { EMPTY , WHITE , BLACK , AVAILABLE };
 
@@ -28,3 +28,5 @@ public:
 private:
 	BlockStatus m_board[8][8];
 };
+
+#endif
